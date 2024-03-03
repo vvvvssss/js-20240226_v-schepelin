@@ -5,5 +5,12 @@
  * @returns {object} - returns the new object
  */
 export const pick = (obj, ...fields) => {
-
+  const entri = new Map(Object.entries(obj));
+  const result = {};
+  for (let fruit of fields) {
+    if (entri.has(fruit)) {
+      result[`${fruit}`] = `${entri.get(fruit)}`;
+    }
+  }
+  return result;
 };
