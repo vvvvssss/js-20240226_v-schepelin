@@ -9,7 +9,7 @@ export const pick = (obj, ...fields) => {
   const result = {};
   for (const fruit of fields) {
     if (entri.has(fruit)) {
-      result[`${fruit}`] = `${entri.get(fruit)}`;
+      result[fruit] = entri.get(fruit);
     }
   }
   return result;
