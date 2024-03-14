@@ -5,12 +5,8 @@
  */
 export function invertObj(obj) {
   if (!obj) return;
-  const newObj = Object.entries(obj);
-  for (let eachObj of newObj) {
-    let empty;
-    empty = eachObj[0];
-    eachObj[0] = eachObj[1];
-    eachObj[1] = empty;
-  }
-  return Object.fromEntries(newObj);
+
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [value, key])
+  );
 }
