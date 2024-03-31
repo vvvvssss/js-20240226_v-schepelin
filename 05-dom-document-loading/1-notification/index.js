@@ -14,7 +14,7 @@ export default class NotificationMessage {
             NotificationMessage.lastInstance.destroy()
         }
         NotificationMessage.lastInstance = this
-        this.appendElement(container)
+        container.append(this.element);
         this.timerId = setTimeout(() => {
             this.remove()
         }, `${this.duration}`)
@@ -25,7 +25,6 @@ export default class NotificationMessage {
         this.element.remove();
     }
     remove(){
-        clearTimeout(this.timerId);
         this.element.remove();
     }
     createTemplate(){
@@ -46,8 +45,5 @@ export default class NotificationMessage {
         element.innerHTML = template;
     
         return element.firstElementChild;
-    }
-    appendElement(container){
-        container.append(this.element);
     }
 }
