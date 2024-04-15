@@ -32,7 +32,6 @@ export default class SortableTableV2 extends SortableTableV1 {
   }
 
   handleHeaderPointerDown(event) {
-    // console.log(event.target)
     const currentColumn = event.target.closest('[data-sortable="true"]');
     if (!currentColumn) {
       return;
