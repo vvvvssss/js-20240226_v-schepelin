@@ -8,15 +8,17 @@ export default class SortableTableV2 extends SortableTableV1 {
     super(headersConfig, data);
     this.sorted = sorted;
     this.createEventListeners();
-    this.addSortElement = this.subElements.header.querySelector("[data-id='title']")
-    this.addSortElement.append(this.createElement(`<span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>`))
+    this.addSorteElement()
   }
   createElement(template) {
     const element = document.createElement("span");
     element.innerHTML = template;
     return element.firstElementChild;
   }
-
+  addSorteElement(){
+    this.addSortElement = this.subElements.header.querySelector("[data-id='title']")
+    this.addSortElement.append(this.createElement(`<span data-element="arrow" class="sortable-table__sort-arrow"><span class="sort-arrow"></span></span>`))
+  }
   sortOnClient() {
     super.sort(this.sortField, this.sortOrder);
   }
@@ -63,34 +65,4 @@ export default class SortableTableV2 extends SortableTableV1 {
     super.destroy();
     this.destroyEventListeners();
   }
-
-  // createHeaderTemplate(sortField = "", sortOrder = "") {
-  //   return this.headerConfig
-  //     .map(({ id, title, sortable }) => {
-  //       return `
-  //       <div 
-  //         class="sortable-table__cell" 
-  //         data-id="${id}" 
-  //         data-sortable="${sortable}" 
-  //         data-order="${sortOrder}"
-  //       >
-  //       <span>${title}</span>
-  //         ${this.createSortArrowTemplate(sortField, id)}
-  //       </div>
-  //     `;
-  //     })
-  //     .join("");
-  // }
-
-  // createSortArrowTemplate(sortField = "", id = "") {
-  //   if (sortField === id) {
-  //     return `
-  //       <span data-element="arrow" class="sortable-table__sort-arrow">
-  //         <span class="sort-arrow"></span>
-  //       </span>
-  //     `;
-  //   }
-  //   return "";
-  // }
-
 }
