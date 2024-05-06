@@ -1,6 +1,8 @@
-export default class DoubleSlider { //не получается пройти тесты с dispatchEvent 89, 108, 137, 158, 198, 222 строки в тестах. Попроловал иммитировать работу теста при помощи функции testFunc() 129 строка index.js, тест был пройден правльно, но при npm test нет
+export default class DoubleSlider { 
     element;
-    static leftRange = 0;
+    min;
+    max;
+    static  leftRange = 0;
     static rightRange = 0;
     static countMeetSlider = true;
     constructor({min = 150, max = 300, selected = {}, formatValue = (value) => '$' + value} = {}){
@@ -29,39 +31,30 @@ export default class DoubleSlider { //не получается пройти т�
 
     createTempalatElement(){
         return `<div class="range-slider">
-                    <span data-element = "from">$10</span>
+                    <span data-element = "from"></span>
                     <div class="range-slider__inner">
-                    <span class="range-slider__progress"></span>
-                    <span class="range-slider__thumb-left"></span>
-                    <span class="range-slider__thumb-right"></span>
+                        <span class="range-slider__progress"></span>
+                        <span class="range-slider__thumb-left"></span>
+                        <span class="range-slider__thumb-right"></span>
                     </div>
-                    <span data-element = "to">$100</span>
+                    <span data-element = "to"></span>
                 </div>`
     }
 
     mouseDownHandler(e){
         if(e.target.classList.contains('range-slider__thumb-left') || e.target.classList.contains('range-slider__thumb-right')){
             this.thumb = e.target;
-            this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
-            this.mouseUpHandler = this.mouseUpHandler.bind(this);
-            document.addEventListener("pointermove", this.mouseMoveHandler);
-            document.addEventListener("pointerup", this.mouseUpHandler);
-            this.rangeSlider = document.querySelector('.range-slider__inner').offsetWidth
-            // if(this.selected){
+            this.rangeSlider = this.element.querySelector('.range-slider__inner').getBoundingClientRect().width
                 if(!this.countLeft && e.target.classList.contains('range-slider__thumb-left')){
-                    this.startXLeft = this.element.querySelector('.range-slider__inner').getBoundingClientRect().left - 3
+                    this.startXLeft = this.element.querySelector('.range-slider__inner').getBoundingClientRect().left
                 } 
                 if(!this.countRight && e.target.classList.contains('range-slider__thumb-right')){
-                    this.startXRight = this.element.querySelector('.range-slider__inner').getBoundingClientRect().right + 3
+                    this.startXRight = this.element.querySelector('.range-slider__inner').getBoundingClientRect().right
                 }
-            // }else{
-            //     if(!this.countLeft && e.target.classList.contains('range-slider__thumb-left')){
-            //         this.startXLeft = e.clientX
-            //     } 
-            //     if(!this.countRight && e.target.classList.contains('range-slider__thumb-right')){
-            //         this.startXRight = e.clientX
-            //     }
-            // }
+            this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+            this.mouseUpHandler = this.mouseUpHandler.bind(this);
+            this.element.addEventListener("pointermove", this.mouseMoveHandler);
+            this.element.addEventListener("pointerup", this.mouseUpHandler);
             this.sliderProgress = document.querySelector('.range-slider__progress')
             this.leftRange = 0;
             this.rightRange = 0;
@@ -84,7 +77,7 @@ export default class DoubleSlider { //не получается пройти т�
     mouseMoveHandler(e){
         if(this.thumb.classList.contains('range-slider__thumb-left')){
             this.countLeft = true;
-            if(e.clientX < this.element.querySelector('.range-slider__inner').getBoundingClientRect().left){
+            if(e.clientX <= this.element.querySelector('.range-slider__inner').getBoundingClientRect().left){
                 this.thumb.style.left = '0%'
             }
             else{
@@ -94,12 +87,13 @@ export default class DoubleSlider { //не получается пройти т�
                 this.thumb.style.left = 100 - this.thumb.nextElementSibling.style.right.substring(0, this.thumb.nextElementSibling.style.right.length - 1) + '%'
             }
             this.sliderProgress.style.left = this.thumb.style.left
-            document.querySelector('span[data-element="from"]').textContent = this.formatValue(this.min + (this.delta * this.thumb.style.left.substring(0, this.thumb.style.left.length - 1)/100))
+            this.element.querySelector('span[data-element="from"]').textContent = this.formatValue(this.min + (this.delta * this.thumb.style.left.substring(0, this.thumb.style.left.length - 1)/100))
+            this.selected.from = this.min + (this.delta * this.thumb.style.left.substring(0, this.thumb.style.left.length - 1)/100)
         }
 
         if(this.thumb.classList.contains('range-slider__thumb-right')){
             this.countRight = true;
-            if(e.clientX > this.element.querySelector('.range-slider__inner').getBoundingClientRect().right){
+            if(e.clientX >= this.element.querySelector('.range-slider__inner').getBoundingClientRect().right){
                 this.thumb.style.right = '0%'
             }
             else{
@@ -109,7 +103,8 @@ export default class DoubleSlider { //не получается пройти т�
                 this.thumb.style.right = 100 - this.thumb.previousElementSibling.style.left.substring(0, this.thumb.previousElementSibling.style.left.length - 1) + '%'
             }
             this.sliderProgress.style.right = this.thumb.style.right
-            document.querySelector('span[data-element="to"]').textContent = this.formatValue(this.max - (this.delta * this.thumb.style.right.substring(0, this.thumb.style.right.length - 1)/100))
+            this.element.querySelector('span[data-element="to"]').textContent = this.formatValue(this.max - (this.delta * this.thumb.style.right.substring(0, this.thumb.style.right.length - 1)/100))
+            this.selected.to = this.max - (this.delta * this.thumb.style.right.substring(0, this.thumb.style.right.length - 1)/100)
         }
 
         if((this.sliderProgress.style.left.substring(0, this.sliderProgress.style.left.length - 1) == DoubleSlider.leftRange - 1) || ((100 - this.sliderProgress.style.right.substring(0, this.sliderProgress.style.right.length - 1)) == DoubleSlider.rightRange + 1)){
@@ -120,54 +115,47 @@ export default class DoubleSlider { //не получается пройти т�
             if(DoubleSlider.countMeetSlider){
                 DoubleSlider.leftRange = this.sliderProgress.style.left.substring(0, this.sliderProgress.style.left.length - 1)
                 DoubleSlider.rightRange = 100 - this.sliderProgress.style.right.substring(0, this.sliderProgress.style.right.length - 1)
-                document.removeEventListener("pointermove", this.mouseMoveHandler);
-                document.removeEventListener("pointerup", this.mouseUpHandler);
+                this.element.removeEventListener("pointermove", this.mouseMoveHandler);
+                this.element.removeEventListener("pointerup", this.mouseUpHandler);
             }
             DoubleSlider.countMeetSlider = false
         }
-    }
-    testFunc(){
-        const leftSlider = this.element.querySelector('.range-slider__thumb-left');
-        const leftBoundary = this.element.querySelector('span[data-element="from"]');
-    
-        const down = new MouseEvent('pointerdown', {
-          bubbles: true
+        const event = new CustomEvent("range-select", {
+            detail:{
+                from: this.selected.from,
+                to: this.selected.to
+            },
         });
-    
-        const move = new MouseEvent('pointermove', {
-          clientX: 0,
-          bubbles: true
-        });
-    
-        leftSlider.dispatchEvent(down);
-        leftSlider.dispatchEvent(move);
-        console.log(leftBoundary)
+
+        this.element.dispatchEvent(event);
     }
+
     mouseUpHandler(){
-        document.removeEventListener("pointermove", this.mouseMoveHandler);
-        document.removeEventListener("pointerup", this.mouseUpHandler);
+        this.element.removeEventListener("pointermove", this.mouseMoveHandler);
+        this.element.removeEventListener("pointerup", this.mouseUpHandler);
     }
 
     createEventListener() {
         this.mouseDownHandler = this.mouseDownHandler.bind(this);
-        document.addEventListener("pointerdown", this.mouseDownHandler);
+        this.element.addEventListener("pointerdown", this.mouseDownHandler);
+        
     }
 
     destroyListeners() {
-        document.removeEventListener("mousedown", this.pointerOverHandler);
-        document.removeEventListener("pointermove", this.pointerMoveHandler);
-        document.removeEventListener("pointerup", this.pointerOutHandler);
-    }
+        this.element.removeEventListener("pointerdown", this.mouseDownHandler);
+        this.element.removeEventListener("pointermove", this.mouseMoveHandler);
+        this.element.removeEventListener("pointerup", this.mouseUpHandler);
+    };
 
     remove() {
-        if (this.element) {
-          this.element.remove();
+        if(this.element){
+            this.element.remove();
         }
     }
 
     destroy(){
-        this.destroyListeners()
-        this.remove()
-      }
+        this.destroyListeners();
+        this.remove();
+    }
 
 }
